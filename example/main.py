@@ -1,21 +1,21 @@
 import sys
 import os
 
-backend = "pyqt6"
+framework = "pyside6"
 
-if backend == "pyqt6":
-    from PyQt6.QtCore import QUrl
-    from PyQt6.QtGui import QGuiApplication
-    from PyQt6.QtQml import QQmlApplicationEngine
-elif backend == "pyside6":
-    from PySide6.QtCore import QUrl
-    from PySide6.QtGui import QGuiApplication
-    from PySide6.QtQml import QQmlApplicationEngine
+if framework == "pyqt5":
+    from PyQt5 import QtCore, QtGui, QtQml
+elif framework == "pyqt6":
+    from PyQt6 import QtCore, QtGui, QtQml
+elif framework == "pyside2":
+    from PySide2 import QtCore, QtGui, QtQml
+elif framework == "pyside6":
+    from PySide6 import QtCore, QtGui, QtQml
 else:
-    raise ImportError("Unknown backend")
+    raise ImportError("Unknown framework")
 
 import mvvm
-mvvm.use(backend)  # Must be called before importing modules which use the library
+mvvm.use(framework)  # Must be called before importing modules which use the library
 
 from example.models import TodoList
 from example.viewmodels import TodoListViewModel
@@ -25,13 +25,14 @@ def main():
     os.environ["QT_QUICK_CONTROLS_STYLE"] = "Material"
 
     # Create the app and engine
-    app = QGuiApplication(sys.argv)
-    engine = QQmlApplicationEngine()
+    app = QtGui.QGuiApplication(sys.argv)
+    engine = QtQml.QQmlApplicationEngine()
     engine.quit.connect(app.quit)
 
     # Get the QML file URL
-    qml_file = os.path.join(os.path.dirname(__file__), "App.qml")
-    app_qml = QUrl.fromLocalFile(qml_file)
+    qt_version = 6 if framework in ["pyside6", "pyqt6"] else 5
+    qml_file = os.path.join(os.path.dirname(__file__), f"App_qt{qt_version}.qml")
+    app_qml = QtCore.QUrl.fromLocalFile(qml_file)
 
     # Create the model and viewmodel
     todo_list = TodoList()
@@ -46,7 +47,10 @@ def main():
         raise RuntimeError("Failed to create QML!")
 
     # Run the app!
-    app.exec()
+    if framework == "pyside2":
+        app.exec_()  # Pyside2 doesn't have exec()
+    else:
+        app.exec()
 
 
 if __name__ == '__main__':
