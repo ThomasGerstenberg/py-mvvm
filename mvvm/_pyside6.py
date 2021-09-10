@@ -118,7 +118,7 @@ class ModelBase(QtCore.QObject, metaclass=ModelMeta):
 
         def handler(*args, **kwargs):
             self._notify_property_changed(target_property_name)
-        source.on_property_changed(source_property_name, handler)
+        source.on_property_changed(source_property_name).connect(handler)
 
     def on_property_changed(self, name):
         return self.__get_signal(name)

@@ -12,7 +12,7 @@ elif backend == "pyside6":
     from PySide6.QtGui import QGuiApplication
     from PySide6.QtQml import QQmlApplicationEngine
 else:
-    raise ImportError("Incorrect backend")
+    raise ImportError("Unknown backend")
 
 import mvvm
 mvvm.use(backend)  # Must be called before importing modules which use the library

@@ -1,13 +1,15 @@
-from mvvm import ModelBase, Property, Event, ObservableCollection, Command
+from mvvm import ModelBase, ViewModelBase, Property, Event, ObservableCollection, Command
 from example.models import TodoList, TodoItem
 
 
-class TodoItemViewModel(ModelBase):
+class TodoItemViewModel(ViewModelBase):
     def __init__(self, todo_item: TodoItem):
         super().__init__()
         self._item = todo_item
+        # General pattern for pass-through viewmodel properties
+        # Essentially links the model's property change to the viewmodel property changed
         self._propagate_property_changed(self._item, "text")
-        self._propagate_property_changed(self._item, "is_complete")
+        self._propagate_property_changed(self._item, "is_complete", "is_complete")  # third arg defaults to the other property name
 
     @Property(str)
     def text(self):
@@ -22,7 +24,7 @@ class TodoItemViewModel(ModelBase):
         self._item.is_complete = value
 
 
-class TodoListViewModel(ModelBase):
+class TodoListViewModel(ViewModelBase):
     def __init__(self, todo_list: TodoList):
         super().__init__()
         self._text_entry = ""
@@ -44,7 +46,7 @@ class TodoListViewModel(ModelBase):
         self._text_entry = value
         self._notify_property_changed()
 
-    @Property(ModelBase)
+    @Property(ModelBase)  # TODO: Why doesn't ObservableCollection work here for pyside6??
     def todo_items(self):
         return self._todo_items
 
