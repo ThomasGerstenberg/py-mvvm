@@ -1,6 +1,7 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
+import QtQuick.Controls.Material 2.15
 
 ApplicationWindow {
     visible: true
@@ -13,9 +14,8 @@ ApplicationWindow {
         anchors.fill: parent
 
         RowLayout {
-
             Label {
-                text: "To-do Item:"
+                text: "To-do Item"
             }
 
             TextField {
@@ -28,7 +28,7 @@ ApplicationWindow {
             }
 
             Button {
-                text: "Add to List"
+                text: "Add"
 
                 onClicked: {
                     vm.add_todo_item();
@@ -37,25 +37,58 @@ ApplicationWindow {
                 enabled: textInput.text != ""
             }
         }
-
-        ListView {
-            model: vm.todo_items
-            spacing: 0
+        ScrollView {
             Layout.fillHeight: true
+            Layout.fillWidth: true
+            ScrollBar.vertical.policy: ScrollBar.AlwaysOn
+            contentWidth: flickableContent.width
+            contentHeight: flickableContent.height
+            clip: true
 
-            delegate: Component {
+            ColumnLayout {
+                id: flickableContent
+
+                ListView {
+                    implicitHeight: contentItem.childrenRect.height
+                    model: vm.todo_items
+                    spacing: -10
+                    delegate: todoItemDelegate
+                }
                 RowLayout {
-                    CheckBox {
-                        checked: modelData.is_complete
-                        onToggled: modelData.is_complete = checked;
-                    }
                     Label {
-                        text: modelData.text
-                        opacity: modelData.is_complete ? 0.5 : 1.0
-                        font.strikeout: modelData.is_complete
+                        text: "Completed"
+                        font.bold: true
                     }
+                    Button {
+                        text: "Clear"
+                        background: Rectangle {
+                            opacity: 0
+                        }
+                        onClicked: vm.clear_completed()
+                        Material.foreground: Material.accent
+                    }
+                }
+                ListView {
+                    model: vm.completed_items
+                    implicitHeight: contentItem.childrenRect.height
+                    spacing: -10
+                    delegate: todoItemDelegate
+                }
+            }
+        }
+
+        Component {
+            id: todoItemDelegate
+            RowLayout {
+                CheckBox {
+                    checked: modelData.is_complete
+                    onToggled: modelData.is_complete = checked;
+                    text: modelData.text
+                    opacity: modelData.is_complete ? 0.5 : 1.0
+                    font.strikeout: modelData.is_complete
                 }
             }
         }
     }
+    Component.onCompleted: textInput.focus = true
 }

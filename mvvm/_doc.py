@@ -15,6 +15,12 @@ class ObservableCollection(Generic[T]):
     def __len__(self):
         pass
 
+    def __contains__(self, item):
+        pass
+
+    def __iter__(self):
+        pass
+
     @property
     def items(self) -> List[T]:
         return []
@@ -23,6 +29,9 @@ class ObservableCollection(Generic[T]):
         pass
 
     def remove(self, item: T):
+        pass
+
+    def filter_remove(self, func):
         pass
 
     def insert(self, index: int, item: T):

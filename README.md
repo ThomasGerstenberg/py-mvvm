@@ -8,7 +8,7 @@ Can also be used with QtWidgets, only difference is the View would also be pytho
 Paradigms will be similar to C#/WPF with methods like `notify_property_changed()` 
 and classes like `ObservableCollection`
 
-Initial example/implementation works with PySide6 and PyQt6
+Initial example/implementation works with PyQt5/PyQt6 and PySide2/PySide6
 
 ### Goals
 
@@ -18,6 +18,6 @@ Initial example/implementation works with PySide6 and PyQt6
 
 ### Current State
 
-- Initial implementations using Pyside6 and PyQt6 work with some caveats
+- Initial implementations using Qt work with some caveats
 - API is not stable, lots of features missing
 - Documentation is non-existent other than some comments in the example code

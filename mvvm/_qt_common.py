@@ -11,6 +11,7 @@ if mvvm.current_framework.startswith("pyside"):
         from PySide2 import QtCore, QtQml
     else:
         raise RuntimeError("Unknown framework trying to use QtCommon")
+
     model_data_role = QtCore.Qt.UserRole + 1
     display_role = QtCore.Qt.DisplayRole
     QtProperty = QtCore.Property
@@ -19,10 +20,14 @@ if mvvm.current_framework.startswith("pyside"):
     QtSlot = QtCore.Slot
 elif mvvm.current_framework.startswith("pyqt"):
     version = mvvm.current_framework[-1]
+
     if version == "6":
         from PyQt6 import QtCore, QtQml
     elif version == "5":
         from PyQt5 import QtCore, QtQml
+    else:
+        raise RuntimeError("Unknown framework trying to use QtCommon")
+
     model_data_role = QtCore.Qt.ItemDataRole.UserRole + 1
     display_role = QtCore.Qt.ItemDataRole.DisplayRole
     QtProperty = QtCore.pyqtProperty
@@ -74,6 +79,18 @@ class QtObservableCollectionBase(QtCore.QAbstractListModel):
         super().__init__()
         self._items = initial_items or []
 
+    def __getitem__(self, item):
+        return self._items[item]
+
+    def __len__(self):
+        return len(self._items)
+
+    def __contains__(self, item):
+        return item in self._items
+
+    def __iter__(self):
+        return self._items
+
     @contextlib.contextmanager
     def _insert_context(self, start, end):
         try:
@@ -106,12 +123,6 @@ class QtObservableCollectionBase(QtCore.QAbstractListModel):
         finally:
             self.endResetModel()
 
-    def __getitem__(self, item):
-        return self._items[item]
-
-    def __len__(self):
-        return len(self._items)
-
     @property
     def items(self):
         return self._items
@@ -139,6 +150,13 @@ class QtObservableCollectionBase(QtCore.QAbstractListModel):
         idx = self._items.index(item)
         with self._remove_context(idx, idx):
             self._items.remove(item)
+
+    def filter_remove(self, func):
+        with self._reset_model_context():
+            items_to_remove = list(filter(func, self._items))
+            for item in items_to_remove:
+                self._items.remove(item)
+            return items_to_remove
 
     def at(self, index):
         return self._items[index]
