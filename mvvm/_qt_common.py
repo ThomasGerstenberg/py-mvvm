@@ -1,7 +1,11 @@
 from __future__ import annotations
 import contextlib
 import inspect
+from typing import TypeVar, Generic
 import mvvm
+
+
+T = TypeVar("T")
 
 if mvvm.current_framework.startswith("pyside"):
     version = mvvm.current_framework[-1]
@@ -70,7 +74,7 @@ def add_event_mixins(cls: type):
 add_event_mixins(QtBoundSignal)
 
 
-class QtObservableCollectionBase(QtCore.QAbstractListModel):
+class QtObservableCollectionBase(QtCore.QAbstractListModel, Generic[T]):
     _MODELDATA_ROLE = model_data_role
     _DISPLAY_ROLE = display_role
     _MODELDATA_NAME = QtCore.QByteArray(b"modelData")
@@ -91,12 +95,17 @@ class QtObservableCollectionBase(QtCore.QAbstractListModel):
     def __iter__(self):
         return self._items
 
+    def _log(self, msg):
+        print(f"{id(self):08x}: {msg}")
+
     @contextlib.contextmanager
     def _insert_context(self, start, end):
         try:
+            self._log(f"beginInsertRows({start}, {end})")
             self.beginInsertRows(QtCore.QModelIndex(), start, end)
             yield
         finally:
+            self._log(f"endInsertRows({start}, {end})")
             self.endInsertRows()
 
     @contextlib.contextmanager
@@ -109,7 +118,7 @@ class QtObservableCollectionBase(QtCore.QAbstractListModel):
 
     @contextlib.contextmanager
     def _item_update_context(self, index):
-        idx = self.createIndex(index, 0)
+        idx = self.createIndex(index, self._MODELDATA_ROLE)
         try:
             yield
         finally:
@@ -128,6 +137,7 @@ class QtObservableCollectionBase(QtCore.QAbstractListModel):
         return self._items
 
     def roleNames(self):
+        self._log("roleNames")
         return {self._MODELDATA_ROLE: self._MODELDATA_NAME}
 
     def data(self, index, role=_MODELDATA_ROLE):
@@ -135,10 +145,12 @@ class QtObservableCollectionBase(QtCore.QAbstractListModel):
             return None
 
         i = index.row()
+        self._log(f"data @ {i}, {role}")
         if 0 <= i < len(self._items):
             return self._items[i]
 
     def rowCount(self, parent=None):
+        self._log(f"Row Count: {len(self._items)}")
         return len(self._items)
 
     def append(self, item):

@@ -13,26 +13,26 @@ class TodoItem(ModelBase):
         return f"TodoItem(is_complete={self._is_complete}, text={self._text})"
 
     @Property(uuid.UUID)
-    def id(self):
+    def id(self) -> uuid.UUID:
         return self._id
 
     @Property(str)
-    def text(self):
+    def text(self) -> str:
         return self._text
 
     @text.setter
-    def text(self, value):
+    def text(self, value: str):
         if self._text == value:
             return
         self._text = value
         self._notify_property_changed()
 
     @Property(bool)
-    def is_complete(self):
+    def is_complete(self) -> bool:
         return self._is_complete
 
     @is_complete.setter
-    def is_complete(self, value):
+    def is_complete(self, value: bool):
         if self._is_complete == value:
             return
         self._is_complete = value
@@ -43,15 +43,15 @@ class TodoList(ModelBase):
     todo_item_added = Event(TodoItem)
     items_removed = Event(list)
 
-    def __init__(self, items=None):
+    def __init__(self, items: list[TodoItem] = None):
         super().__init__()
         self._items = items or []
 
     @property
-    def items(self):
+    def items(self) -> list[TodoItem]:
         return self._items
 
-    def add_todo_item(self, text):
+    def add_todo_item(self, text: str):
         item = TodoItem(text)
         self._items.append(item)
         self.todo_item_added.raise_event(item)

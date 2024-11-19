@@ -7,6 +7,10 @@
 # Compiled python objects
 *.py[co]
 
+# Virtual environments
+.env/
+.venv/
+
 # Auto-generated version file
 version.py
 

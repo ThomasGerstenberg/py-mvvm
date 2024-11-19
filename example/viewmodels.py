@@ -15,19 +15,19 @@ class TodoItemViewModel(ViewModelBase):
         self._propagate_property_changed(self._item, "is_complete", "is_complete")  # third arg defaults to the other property name
 
     @Property(uuid.UUID)
-    def id(self):
+    def id(self) -> uuid.UUID:
         return self._item.id
 
     @Property(str)
-    def text(self):
+    def text(self) -> str:
         return self._item.text
 
     @Property(bool)
-    def is_complete(self):
+    def is_complete(self) -> bool:
         return self._item.is_complete
 
     @is_complete.setter
-    def is_complete(self, value):
+    def is_complete(self, value: bool):
         self._item.is_complete = value
 
 
@@ -42,12 +42,15 @@ class TodoListViewModel(ViewModelBase):
         self._completed_items = ObservableCollection()
 
     def _item_added(self, item: TodoItem):
+        print("Item Added")
         item_viewmodel = TodoItemViewModel(item)
 
         if item.is_complete:
             self._completed_items.append(item_viewmodel)
+            self._notify_property_changed("completed_items")
         else:
             self._todo_items.append(item_viewmodel)
+            self._notify_property_changed("todo_items")
 
         # Register for whenever the item is completed to move it to the corresponding list
         def on_completed():
@@ -75,26 +78,27 @@ class TodoListViewModel(ViewModelBase):
             self._completed_items.filter_remove(lambda item: item.id in completed_ids)
 
     @Property(str)
-    def text_entry(self):
+    def text_entry(self) -> str:
         return self._text_entry
 
     @text_entry.setter
-    def text_entry(self, value):
+    def text_entry(self, value: str):
         if self._text_entry == value:
             return
         self._text_entry = value
         self._notify_property_changed()
 
-    @Property(ModelBase)  # TODO: Why doesn't ObservableCollection work here for pyside6??
-    def todo_items(self):
+    @Property(ObservableCollection)  # TODO: Why doesn't ObservableCollection work here for pyside6??
+    def todo_items(self) -> ObservableCollection[TodoItemViewModel]:
         return self._todo_items
 
-    @Property(ModelBase)
-    def completed_items(self):
+    @Property(ObservableCollection)
+    def completed_items(self) -> ObservableCollection[TodoItemViewModel]:
         return self._completed_items
 
     @Command()
     def add_todo_item(self):
+        print(f"Adding {self._text_entry}")
         self._todo_list.add_todo_item(self._text_entry)
         self.text_entry = ""
 

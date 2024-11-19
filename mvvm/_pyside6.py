@@ -1,7 +1,11 @@
+from typing import Generic, TypeVar
+
 from mvvm import _qt_common
 
+T = TypeVar("T")
 
-class ObservableCollection(_qt_common.QtObservableCollectionBase):
+
+class ObservableCollection(_qt_common.QtObservableCollectionBase, Generic[T]):
     pass
 
 

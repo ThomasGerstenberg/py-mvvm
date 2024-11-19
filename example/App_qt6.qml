@@ -87,6 +87,7 @@ ApplicationWindow {
                     opacity: modelData.is_complete ? 0.5 : 1.0
                     font.strikeout: modelData.is_complete
                 }
+                Component.onCompleted: console.log("Created: " + modelData.text)
             }
         }
     }
